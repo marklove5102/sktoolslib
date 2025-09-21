@@ -24,7 +24,7 @@
 #include <winrt/Windows.Management.Deployment.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.ApplicationModel.h>
-#include "../../ext/sktoolslib/Registry.h"
+#include "Registry.h"
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Management::Deployment;
