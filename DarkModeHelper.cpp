@@ -1,6 +1,6 @@
 ﻿// sktoolslib - common files for SK tools
 
-// Copyright (C) 2019-2021 - Stefan Kueng
+// Copyright (C) 2019-2021, 2026 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,6 +22,65 @@
 #include "PathUtils.h"
 #include <vector>
 #include <Shlobj.h>
+#include <dwmapi.h>
+
+#pragma comment(lib, "dwmapi.lib")
+
+namespace
+{
+// Check if running on Windows 11 or later
+bool IsWindows11OrGreater()
+{
+    PWSTR        pszPath = nullptr;
+    std::wstring sysPath;
+    if (SHGetKnownFolderPath(FOLDERID_System, KF_FLAG_CREATE, nullptr, &pszPath) == S_OK)
+    {
+        sysPath = pszPath;
+        CoTaskMemFree(pszPath);
+    }
+    auto             version = CPathUtils::GetVersionFromFile(sysPath + L"\\shell32.dll");
+    std::vector<int> versions;
+    stringtok(versions, version, true, L".");
+    return versions.size() > 2 && versions[2] >= 22000;
+}
+} // namespace
+
+// Apply Windows 11 Mica backdrop effect
+void DarkModeHelper::ApplyMicaBackdrop(HWND hwnd)
+{
+    if (!IsWindows11OrGreater())
+        return;
+
+    // DWMWA_SYSTEMBACKDROP_TYPE is 38 for Windows 11
+    // DWMSBT_MAINWINDOW (2) enables Mica
+    constexpr DWORD DWMWA_SYSTEMBACKDROP_TYPE = 38;
+    constexpr int   DWMSBT_MAINWINDOW         = 2;
+
+    DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE,
+                          &DWMSBT_MAINWINDOW, sizeof(DWMSBT_MAINWINDOW));
+}
+
+// Enable dark mode for context/popup menus (Windows 10 1809+)
+void DarkModeHelper::EnableDarkModeForMenu(HWND hwnd, bool isDark)
+{
+    // Use undocumented API to enable dark mode for menus
+    // This works on Windows 10 1809+ and Windows 11
+    constexpr DWORD DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
+    constexpr DWORD DWMWA_USE_IMMERSIVE_DARK_MODE             = 20;
+
+    BOOL            value                                     = isDark ? TRUE : FALSE;
+
+    // Try Windows 10 20H1+ method first
+    HRESULT         hr                                        = DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE,
+                                                                                      &value, sizeof(value));
+
+    // Fall back to older method if needed
+    if (FAILED(hr))
+    {
+        DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1,
+                              &value, sizeof(value));
+    }
+}
 
 DarkModeHelper& DarkModeHelper::Instance()
 {
@@ -132,7 +191,7 @@ DarkModeHelper::DarkModeHelper()
             auto major = std::stol(tokens[0]);
             auto minor = std::stol(tokens[1]);
             micro      = std::stol(tokens[2]);
-            //auto build = std::stol(tokens[3]);
+            // auto build = std::stol(tokens[3]);
 
             // the windows 10 update 1809 has the version
             // number as 10.0.17763.1

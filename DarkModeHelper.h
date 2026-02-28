@@ -1,6 +1,6 @@
 ﻿// sktoolslib - common files for SK tools
 
-// Copyright (C) 2019-2021 - Stefan Kueng
+// Copyright (C) 2019-2021, 2026 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -79,34 +79,37 @@ public:
     };
     // ReSharper restore CppInconsistentNaming
 
-    bool CanHaveDarkMode() const;
-    void AllowDarkModeForApp(BOOL allow) const;
-    void AllowDarkModeForWindow(HWND hwnd, BOOL allow) const;
-    BOOL ShouldAppsUseDarkMode() const;
-    BOOL IsDarkModeAllowedForWindow(HWND hwnd) const;
-    BOOL IsDarkModeAllowedForApp() const;
-    BOOL ShouldSystemUseDarkMode() const;
-    void RefreshImmersiveColorPolicyState() const;
-    BOOL GetIsImmersiveColorUsingHighContrast(IMMERSIVE_HC_CACHE_MODE mode) const;
-    void FlushMenuThemes() const;
-    BOOL SetWindowCompositionAttribute(HWND hWnd, WINDOWCOMPOSITIONATTRIBDATA* data) const;
-    void RefreshTitleBarThemeColor(HWND hWnd, BOOL dark) const;
+    bool        CanHaveDarkMode() const;
+    void        AllowDarkModeForApp(BOOL allow) const;
+    void        AllowDarkModeForWindow(HWND hwnd, BOOL allow) const;
+    BOOL        ShouldAppsUseDarkMode() const;
+    BOOL        IsDarkModeAllowedForWindow(HWND hwnd) const;
+    BOOL        IsDarkModeAllowedForApp() const;
+    BOOL        ShouldSystemUseDarkMode() const;
+    void        RefreshImmersiveColorPolicyState() const;
+    BOOL        GetIsImmersiveColorUsingHighContrast(IMMERSIVE_HC_CACHE_MODE mode) const;
+    void        FlushMenuThemes() const;
+    BOOL        SetWindowCompositionAttribute(HWND hWnd, WINDOWCOMPOSITIONATTRIBDATA* data) const;
+    void        RefreshTitleBarThemeColor(HWND hWnd, BOOL dark) const;
+
+    static void ApplyMicaBackdrop(HWND hwnd);
+    static void EnableDarkModeForMenu(HWND hwnd, bool isDark);
 
 private:
     DarkModeHelper();
     ~DarkModeHelper();
 
-    using AllowDarkModeForAppFpn = void(WINAPI* )(BOOL allow);
-    using SetPreferredAppModeFpn = PreferredAppMode(WINAPI* )(PreferredAppMode appMode);
-    using AllowDarkModeForWindowFpn = void(WINAPI* )(HWND hwnd, BOOL allow);
-    using ShouldAppsUseDarkModeFpn = BOOL(WINAPI* )();
-    using IsDarkModeAllowedForWindowFpn = BOOL(WINAPI* )(HWND hwnd);
-    using IsDarkModeAllowedForAppFpn = BOOL(WINAPI* )();
-    using ShouldSystemUseDarkModeFpn = BOOL(WINAPI* )();
-    using RefreshImmersiveColorPolicyStateFn = void(WINAPI* )();
-    using GetIsImmersiveColorUsingHighContrastFn = BOOL(WINAPI* )(IMMERSIVE_HC_CACHE_MODE mode);
-    using FlushMenuThemesFn = void(WINAPI* )();
-    using SetWindowCompositionAttributeFpn = BOOL(WINAPI* )(HWND hwnd, WINDOWCOMPOSITIONATTRIBDATA* data);
+    using AllowDarkModeForAppFpn                                                   = void(WINAPI*)(BOOL allow);
+    using SetPreferredAppModeFpn                                                   = PreferredAppMode(WINAPI*)(PreferredAppMode appMode);
+    using AllowDarkModeForWindowFpn                                                = void(WINAPI*)(HWND hwnd, BOOL allow);
+    using ShouldAppsUseDarkModeFpn                                                 = BOOL(WINAPI*)();
+    using IsDarkModeAllowedForWindowFpn                                            = BOOL(WINAPI*)(HWND hwnd);
+    using IsDarkModeAllowedForAppFpn                                               = BOOL(WINAPI*)();
+    using ShouldSystemUseDarkModeFpn                                               = BOOL(WINAPI*)();
+    using RefreshImmersiveColorPolicyStateFn                                       = void(WINAPI*)();
+    using GetIsImmersiveColorUsingHighContrastFn                                   = BOOL(WINAPI*)(IMMERSIVE_HC_CACHE_MODE mode);
+    using FlushMenuThemesFn                                                        = void(WINAPI*)();
+    using SetWindowCompositionAttributeFpn                                         = BOOL(WINAPI*)(HWND hwnd, WINDOWCOMPOSITIONATTRIBDATA* data);
 
     AllowDarkModeForAppFpn                 m_pAllowDarkModeForApp                  = nullptr;
     SetPreferredAppModeFpn                 m_pSetPreferredAppMode                  = nullptr;
